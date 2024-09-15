@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-
 using System.Security.Cryptography;
 using System.Text;
+using System.IO;
+using System.Threading.Tasks;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -14,6 +15,71 @@ public class AuthController : ControllerBase
         _context = context;
     }
 
+    // RSA Key Generation
+    private (string publicKey, string privateKey) GenerateRSAKeys()
+    {
+        using RSA rsa = RSA.Create();
+        string privateKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
+        string publicKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
+        return (publicKey, privateKey);
+    }
+
+    // AES Encryption for session data
+    private byte[] EncryptSessionData(string sessionData, byte[] aesKey)
+    {
+        using Aes aesAlg = Aes.Create();
+        aesAlg.Key = aesKey;
+        aesAlg.GenerateIV();
+        ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+        using MemoryStream msEncrypt = new MemoryStream();
+        using CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
+        using StreamWriter swEncrypt = new StreamWriter(csEncrypt);
+        swEncrypt.Write(sessionData);
+        return msEncrypt.ToArray();
+    }
+
+    // Encrypt data using AES
+    private string EncryptData(string plainText, byte[] aesKey)
+    {
+        using Aes aesAlg = Aes.Create();
+        aesAlg.Key = aesKey;
+        aesAlg.GenerateIV();
+
+        ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+        using MemoryStream msEncrypt = new MemoryStream();
+        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+        {
+            swEncrypt.Write(plainText);
+        }
+
+        // Ensure the IV is included, as it's needed for decryption
+        byte[] encrypted = msEncrypt.ToArray();
+        byte[] combinedData = new byte[aesAlg.IV.Length + encrypted.Length];
+        Array.Copy(aesAlg.IV, 0, combinedData, 0, aesAlg.IV.Length);
+        Array.Copy(encrypted, 0, combinedData, aesAlg.IV.Length, encrypted.Length);
+
+        return Convert.ToBase64String(combinedData);
+    }
+
+
+    // Decrypt data using AES
+    private string DecryptData(string cipherText, byte[] aesKey)
+    {
+        byte[] cipherBytes = Convert.FromBase64String(cipherText);
+        using Aes aesAlg = Aes.Create();
+        aesAlg.Key = aesKey;
+        aesAlg.GenerateIV();
+
+        ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+        using MemoryStream msDecrypt = new MemoryStream(cipherBytes);
+        using CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+        using StreamReader srDecrypt = new StreamReader(csDecrypt);
+        return srDecrypt.ReadToEnd();
+    }
+
+    // Register method with AES encrypted password storage
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRegisterDto request)
     {
@@ -33,19 +99,21 @@ public class AuthController : ControllerBase
             // Create password hash and salt
             CreatePasswordHash(request.Password, out string passwordHash, out string passwordSalt);
 
+            // Encrypt sensitive data before storing it in the database
+            byte[] aesKey = GenerateAESKey(); // You should securely generate or retrieve this AES key
             var user = new User
             {
                 Username = request.Username,
                 Email = request.Email,
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt // Store the salt
+                PasswordSalt = passwordSalt, // Store the salt
+                EncryptedEmail = EncryptData(request.Email, aesKey) // Example of encrypting an email
             };
 
             // Add the user to the database
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Return success response
             return Ok(new
             {
                 message = "User registered successfully.",
@@ -55,7 +123,6 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Handle unexpected errors
             return StatusCode(500, new
             {
                 message = "An error occurred while processing your request.",
@@ -65,14 +132,7 @@ public class AuthController : ControllerBase
         }
     }
 
-
-    private void CreatePasswordHash(string password, out string passwordHash, out string passwordSalt)
-    {
-        using var hmac = new HMACSHA256();
-        passwordSalt = Convert.ToBase64String(hmac.Key); // Store the key as the salt
-        passwordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
-    }
-
+    // Login method
     [HttpPost("login")]
     public IActionResult Login(UserLoginDto request)
     {
@@ -89,6 +149,21 @@ public class AuthController : ControllerBase
         });
     }
 
+    // AES key generation (this is an example, you can change this to your key management strategy)
+    private byte[] GenerateAESKey()
+    {
+        using Aes aesAlg = Aes.Create();
+        aesAlg.GenerateKey();
+        return aesAlg.Key;
+    }
+
+    // Helper method to create password hash and salt
+    private void CreatePasswordHash(string password, out string passwordHash, out string passwordSalt)
+    {
+        using var hmac = new HMACSHA256();
+        passwordSalt = Convert.ToBase64String(hmac.Key); // Store the key as the salt
+        passwordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+    }
 
     private bool VerifyPasswordHash(string password, string storedHash, string storedSalt)
     {
@@ -97,24 +172,24 @@ public class AuthController : ControllerBase
         return Convert.ToBase64String(computedHash) == storedHash;
     }
 
-
+    // Submit appointment method with encrypted sensitive data
     [HttpPost("submit-appointment")]
     public async Task<IActionResult> SubmitAppointment(AppointmentDto request)
     {
         try
         {
-            // Create a new appointment object from the DTO
+            byte[] aesKey = GenerateAESKey(); // Generate or retrieve a stored AES key
+
             var appointment = new Appointment
             {
-                Name = request.Name,
+                Name = EncryptData(request.Name, aesKey),
                 Age = request.Age,
-                MedicalHistory = request.MedicalHistory,
-                TreatmentSchedule = request.TreatmentSchedule,
-                Medications = request.Medications,
-                Contact = request.Contact
+                MedicalHistory = EncryptData(request.MedicalHistory, aesKey),
+                TreatmentSchedule = EncryptData(request.TreatmentSchedule, aesKey),
+                Medications = EncryptData(request.Medications, aesKey),
+                Contact = EncryptData(request.Contact, aesKey)
             };
 
-            // Add the appointment to the database
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
@@ -127,7 +202,6 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Handle unexpected errors
             return StatusCode(500, new
             {
                 message = "An error occurred while processing your request.",
@@ -136,7 +210,4 @@ public class AuthController : ControllerBase
             });
         }
     }
-
-
-
 }

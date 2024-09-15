@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HQIfnWyQUqs=",
+  "dgSpecHash": "SpZnTk994Z8=",
   "success": true,
-  "projectFilePath": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\Backend\\MyAuthApi\\MyAuthApi.csproj",
+  "projectFilePath": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\GIT\\ASP.NET-Core-Web-API-Project\\Backend\\MyAuthApi\\MyAuthApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\chari\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\chari\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.8\\microsoft.aspnetcore.authentication.jwtbearer.8.0.8.nupkg.sha512",

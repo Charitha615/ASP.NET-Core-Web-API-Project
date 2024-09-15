@@ -8,4 +8,5 @@ public class Appointment
     public string Medications { get; set; }
     public string Contact { get; set; }
     public DateTime AppointmentDate { get; set; } = DateTime.Now;
+    
 }

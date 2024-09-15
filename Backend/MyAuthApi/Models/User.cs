@@ -8,4 +8,5 @@ public class User
     public string Email { get; set; }
 
     public string PasswordSalt { get; internal set; }
+    public string EncryptedEmail { get; internal set; }
 }

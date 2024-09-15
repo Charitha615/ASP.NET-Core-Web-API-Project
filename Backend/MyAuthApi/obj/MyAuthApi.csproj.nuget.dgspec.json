@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\Backend\\MyAuthApi\\MyAuthApi.csproj": {}
+    "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\GIT\\ASP.NET-Core-Web-API-Project\\Backend\\MyAuthApi\\MyAuthApi.csproj": {}
   },
   "projects": {
-    "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\Backend\\MyAuthApi\\MyAuthApi.csproj": {
+    "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\GIT\\ASP.NET-Core-Web-API-Project\\Backend\\MyAuthApi\\MyAuthApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\Backend\\MyAuthApi\\MyAuthApi.csproj",
+        "projectUniqueName": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\GIT\\ASP.NET-Core-Web-API-Project\\Backend\\MyAuthApi\\MyAuthApi.csproj",
         "projectName": "MyAuthApi",
-        "projectPath": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\Backend\\MyAuthApi\\MyAuthApi.csproj",
+        "projectPath": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\GIT\\ASP.NET-Core-Web-API-Project\\Backend\\MyAuthApi\\MyAuthApi.csproj",
         "packagesPath": "C:\\Users\\chari\\.nuget\\packages\\",
-        "outputPath": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\Backend\\MyAuthApi\\obj\\",
+        "outputPath": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\GIT\\ASP.NET-Core-Web-API-Project\\Backend\\MyAuthApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\chari\\AppData\\Roaming\\NuGet\\NuGet.Config",
