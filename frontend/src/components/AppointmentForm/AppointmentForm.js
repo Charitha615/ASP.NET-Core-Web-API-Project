@@ -13,6 +13,7 @@ const AppointmentForm = () => {
     treatmentSchedule: '',
     medications: '',
     contact: '',
+    userID: localStorage.getItem("userId"),
   });
 
   const checkAPI = () => {

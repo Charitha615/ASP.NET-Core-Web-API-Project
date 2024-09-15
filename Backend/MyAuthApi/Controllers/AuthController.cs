@@ -184,6 +184,7 @@ public class AuthController : ControllerBase
             {
                 Name = EncryptData(request.Name, aesKey),
                 Age = request.Age,
+                userID = request.userID,
                 MedicalHistory = EncryptData(request.MedicalHistory, aesKey),
                 TreatmentSchedule = EncryptData(request.TreatmentSchedule, aesKey),
                 Medications = EncryptData(request.Medications, aesKey),
