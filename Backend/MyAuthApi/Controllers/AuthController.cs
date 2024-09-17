@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
     }
 
     // Encrypt data using AES
-    private string EncryptData(string plainText, byte[] aesKey)
+    private string EncryptDatas(string plainText, byte[] aesKey)
     {
         using Aes aesAlg = Aes.Create();
         aesAlg.Key = aesKey;
@@ -65,7 +65,7 @@ public class AuthController : ControllerBase
 
 
     // Decrypt data using AES
-    private string DecryptData(string cipherText, byte[] aesKey)
+    private string DecryptDatas(string cipherText, byte[] aesKey)
     {
         byte[] cipherBytes = Convert.FromBase64String(cipherText);
         using Aes aesAlg = Aes.Create();
@@ -107,7 +107,7 @@ public class AuthController : ControllerBase
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt, // Store the salt
-                EncryptedEmail = EncryptData(request.Email, aesKey) // Example of encrypting an email
+                EncryptedEmail = EncryptDatas(request.Email, aesKey) // Example of encrypting an email
             };
 
             // Add the user to the database
@@ -172,23 +172,84 @@ public class AuthController : ControllerBase
         return Convert.ToBase64String(computedHash) == storedHash;
     }
 
+    // AES encryption method (as provided earlier)
+    private string EncryptData(string plainText, byte[] key, byte[] iv)
+    {
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.Key = key;
+            aesAlg.IV = iv;
+
+            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+            using (MemoryStream msEncrypt = new MemoryStream())
+            {
+                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                {
+                    using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                    {
+                        swEncrypt.Write(plainText);
+                    }
+                    return Convert.ToBase64String(msEncrypt.ToArray());
+                }
+            }
+        }
+    }
+
+    // AES decryption method (as provided earlier)
+    private string DecryptData(string cipherText, byte[] key, byte[] iv)
+    {
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.Key = key;
+            aesAlg.IV = iv;
+
+            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+            using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(cipherText)))
+            {
+                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                {
+                    using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                    {
+                        return srDecrypt.ReadToEnd();
+                    }
+                }
+            }
+        }
+    }
+
+    // Method to generate AES Key and IV (keep this secure)
+    private (byte[] Key, byte[] IV) GenerateAESKeyAndIV()
+    {
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.GenerateKey();
+            aesAlg.GenerateIV();
+            return (aesAlg.Key, aesAlg.IV);
+        }
+    }
+
     // Submit appointment method with encrypted sensitive data
     [HttpPost("submit-appointment")]
     public async Task<IActionResult> SubmitAppointment(AppointmentDto request)
     {
         try
         {
-            byte[] aesKey = GenerateAESKey(); // Generate or retrieve a stored AES key
+            // Generate or retrieve stored AES key and IV
+            var (aesKey, aesIV) = GenerateAESKeyAndIV();
 
             var appointment = new Appointment
             {
-                Name = EncryptData(request.Name, aesKey),
+                Name = EncryptData(request.Name, aesKey, aesIV),
                 Age = request.Age,
                 userID = request.userID,
-                MedicalHistory = EncryptData(request.MedicalHistory, aesKey),
-                TreatmentSchedule = EncryptData(request.TreatmentSchedule, aesKey),
-                Medications = EncryptData(request.Medications, aesKey),
-                Contact = EncryptData(request.Contact, aesKey)
+                MedicalHistory = EncryptData(request.MedicalHistory, aesKey, aesIV),
+                TreatmentSchedule = EncryptData(request.TreatmentSchedule, aesKey, aesIV),
+                Medications = EncryptData(request.Medications, aesKey, aesIV),
+                Contact = EncryptData(request.Contact, aesKey, aesIV),
+                AesKey = Convert.ToBase64String(aesKey),  // Store the key securely (this is a simplified example)
+                AesIV = Convert.ToBase64String(aesIV)     // Store the IV securely
             };
 
             _context.Appointments.Add(appointment);
@@ -211,4 +272,53 @@ public class AuthController : ControllerBase
             });
         }
     }
+
+    // Method to retrieve all appointments
+    [HttpGet("get-appointments")]
+    public IActionResult GetAppointments()
+    {
+        try
+        {
+            // Retrieve all appointments from the database
+            var appointments = _context.Appointments.ToList();
+
+            // Decrypt sensitive data before sending the response
+            var decryptedAppointments = appointments.Select(appointment =>
+            {
+                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  // Retrieve AES key
+                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    // Retrieve AES IV
+
+                return new
+                {
+                    Id = appointment.Id,
+                    Name = DecryptData(appointment.Name, aesKey, aesIV),
+                    Age = appointment.Age,
+                    UserID = appointment.userID,
+                    MedicalHistory = DecryptData(appointment.MedicalHistory, aesKey, aesIV),
+                    TreatmentSchedule = DecryptData(appointment.TreatmentSchedule, aesKey, aesIV),
+                    Medications = DecryptData(appointment.Medications, aesKey, aesIV),
+                    Contact = DecryptData(appointment.Contact, aesKey, aesIV)
+                };
+            }).ToList();
+
+            return Ok(new
+            {
+                message = "Appointments retrieved successfully.",
+                statusCode = 200,
+                data = decryptedAppointments
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "An error occurred while retrieving the appointments.",
+                statusCode = 500,
+                error = ex.Message
+            });
+        }
+    }
+
+
+   
 }
