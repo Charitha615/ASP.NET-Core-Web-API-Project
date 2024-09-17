@@ -1,6 +1,16 @@
 [
   {
     "ContainingType": "AuthController",
+    "Method": "GetAppointments",
+    "RelativePath": "api/Auth/get-appointments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthController",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
     "HttpMethod": "POST",

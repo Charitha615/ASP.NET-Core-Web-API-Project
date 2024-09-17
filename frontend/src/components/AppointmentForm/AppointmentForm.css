@@ -1,46 +1,265 @@
-/* AppointmentForm.css */
-.appointment-form-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 50px;
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f3f4f6; /* Light background */
+}
+
+/* Stack the elements in a column */
+.appointment-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-image: url('https://i.pinimg.com/originals/a5/e8/9d/a5e89dc19d0a7690253ccb52b6c85fc7.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Full-width layout for form and appointment list */
+.appointment-form-container,
+.appointments-list {
+  width: 100vw; /* Full viewport width */
+  max-width: none; /* Remove any max-width restrictions */
+  margin-bottom: 40px;
+  padding: 20px 40px; /* Add padding for better readability */
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+.doctor-selection-container {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* Center text and alignments */
+.appointment-form-container h2,
+.appointments-list h2 {
+  text-align: center;
+}
+
+/* For smaller screens, ensure responsiveness */
+@media (max-width: 768px) {
+  .doctor-selection-container {
+    width: 90%;
   }
-  
-  form {
-    width: 500px;
+  .appointment-form-container,
+  .appointments-list {
+    width: 100%;
     padding: 20px;
-    background-color: #f7f7f7;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
-  
-  .form-step {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+}
+
+
+.doctor-selection-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto;
+  text-align: center;
+  position: relative;
+}
+
+.doctor-selection-container h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doctor-selection-container h2::before {
+  content: '👨‍⚕️'; /* Doctor icon */
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.doctor-selection-container select {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  appearance: none; /* Removes default arrow */
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iNCIgdmlld0JveD0iMCAwIDEyIDQiIHZlcnNpb249IjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMmw1IDQgNSA0LTEwLTciIGZpbGw9IiM1YzZjNmMiLz48L3N2Zz4=');
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+.doctor-selection-container select:focus {
+  outline: none;
+  border-color: #ff4081; /* Focused border color */
+}
+
+.doctor-selection-container option {
+  font-size: 16px;
+}
+
+@media (max-width: 600px) {
+  .doctor-selection-container {
+    width: 90%;
   }
-  
-  label {
-    font-size: 1.1em;
-    margin-bottom: 5px;
+}
+
+
+.appointment-form-container {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.appointment-form-container h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+}
+
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+  border-color: #ff4081;
+  outline: none;
+}
+
+.form-group textarea {
+  height: 80px;
+  resize: none;
+}
+
+.submit-btn {
+  background-color: #ff4081;
+  color: white;
+  padding: 14px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #e53770;
+}
+
+@media (max-width: 768px) {
+  .appointment-form-container {
+    padding: 20px;
+    max-width: 90%;
   }
-  
-  input, textarea {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #f54786;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #d73f6d;
-  }
-  
+}
+
+.appointments-list {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  margin-top: 30px;
+}
+
+.appointments-list h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.appointments-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.appointments-list li {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.appointments-list li:hover {
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.appointments-list li p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.appointments-list li strong {
+  font-weight: bold;
+  color: #333;
+}
+
+.appointment-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.appointment-info .patient-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff4081;
+}
+
+.appointment-info .appointment-status {
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: #e3f2fd;
+  color: #2196f3;
+}
+
+.appointment-details {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.appointment-details p {
+  font-size: 14px;
+}
+
+.appointment-details strong {
+  color: #555;
+}

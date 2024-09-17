@@ -244,6 +244,8 @@ public class AuthController : ControllerBase
                 Name = EncryptData(request.Name, aesKey, aesIV),
                 Age = request.Age,
                 userID = request.userID,
+                DoctorID = request.DoctorID,
+                DoctorName = request.DoctorName,
                 MedicalHistory = EncryptData(request.MedicalHistory, aesKey, aesIV),
                 TreatmentSchedule = EncryptData(request.TreatmentSchedule, aesKey, aesIV),
                 Medications = EncryptData(request.Medications, aesKey, aesIV),
