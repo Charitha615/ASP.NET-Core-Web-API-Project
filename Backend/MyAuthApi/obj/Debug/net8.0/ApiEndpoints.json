@@ -59,6 +59,16 @@
   },
   {
     "ContainingType": "MyAuthApi.Controllers.DoctorController",
+    "Method": "GetAllDoctors",
+    "RelativePath": "api/Doctor/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyAuthApi.Controllers.DoctorController",
     "Method": "LoginDoctor",
     "RelativePath": "api/Doctor/login",
     "HttpMethod": "POST",

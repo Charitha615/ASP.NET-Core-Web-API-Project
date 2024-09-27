@@ -75,5 +75,29 @@ namespace MyAuthApi.Controllers
 
             return BadRequest(ModelState);
         }
+
+        [HttpGet("all")]
+        public IActionResult GetAllDoctors()
+        {
+            var doctors = _context.Doctors
+                .Select(d => new
+                {
+                    id = d.DoctorId,
+                    fullName = d.FullName,
+                    email = d.Email,
+                    phoneNumber = d.PhoneNumber,
+                    specialty = d.Specialty,
+                    licenseNumber = d.LicenseNumber,
+                    experienceYears = d.ExperienceYears
+                })
+                .ToList();
+
+            if (doctors.Count == 0)
+            {
+                return NotFound(new { message = "No doctors found!" });
+            }
+
+            return Ok(doctors);
+        }
     }
 }

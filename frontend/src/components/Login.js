@@ -21,7 +21,7 @@ const Login = () => {
       
       if (userType === 'normal') {
         // Normal user login
-        response = await fetch(`${API_BASE_URL}/Auth/login`, {
+        response = await fetch(`${API_BASE_URL}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

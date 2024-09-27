@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './AppointmentForm.css'; // Create styles for the form
+import './AppointmentForm.css'; // Assuming you have styles
 import { API_BASE_URL } from '../../config'; // Import global API URL
 
 const AppointmentForm = () => {
@@ -16,12 +16,28 @@ const AppointmentForm = () => {
   });
 
   const [appointments, setAppointments] = useState([]);
-  const [doctors, setDoctors] = useState([
-    { id: 1, name: "Dr. Smith" },
-    { id: 2, name: "Dr. Johnson" },
-    { id: 3, name: "Dr. Lee" }
-  ]); // Mock list of doctors for demo purposes
+  const [doctors, setDoctors] = useState([]); // Will hold doctor data fetched from the API
   const [selectedDoctor, setSelectedDoctor] = useState('');
+
+  // Fetch doctors from API
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await fetch(`https://localhost:5001/api/doctor/all`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        setDoctors(data); // Assuming API response directly returns the list of doctors
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   // Fetch appointments from the API
   useEffect(() => {
@@ -34,7 +50,7 @@ const AppointmentForm = () => {
           },
         });
         const data = await response.json();
-        setAppointments(data.data); // Use the "data" key from the API response
+        setAppointments(data.data); // Assuming API response has the "data" key
       } catch (error) {
         console.error('Error fetching appointments:', error);
       }
@@ -49,12 +65,10 @@ const AppointmentForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-
-
   // Handle doctor selection
   const handleDoctorChange = (e) => {
     const selectedDoctorId = e.target.value;
-    const selectedDoctorName = doctors.find(doc => doc.id == selectedDoctorId)?.name || '';
+    const selectedDoctorName = doctors.find(doc => doc.id == selectedDoctorId)?.fullName || '';
 
     setSelectedDoctor(selectedDoctorId);
     setFormData({
@@ -63,7 +77,6 @@ const AppointmentForm = () => {
       DoctorName: selectedDoctorName // Set the doctor's name here
     });
   };
-
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -117,10 +130,7 @@ const AppointmentForm = () => {
         </div>
       </header>
 
-
       <div className="appointment-page" style={{ backgroundImage: 'url("/path-to-background-image.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-
-
         {/* Doctor Selection */}
         <div className="doctor-selection-container">
           <h2>Select a Doctor</h2>
@@ -128,23 +138,22 @@ const AppointmentForm = () => {
             <option value="">Choose a doctor</option>
             {doctors.map((doctor) => (
               <option key={doctor.id} value={doctor.id}>
-                {doctor.name}
+                {doctor.fullName} ({doctor.specialty})
               </option>
             ))}
           </select>
         </div>
 
-
         {selectedDoctor && (
           <div className="appointment-form-container">
-            <h2>Schedule an Appointment with {doctors.find(doc => doc.id == selectedDoctor)?.name}</h2>
+            <h2>Schedule an Appointment with {doctors.find(doc => doc.id == selectedDoctor)?.fullName}</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Doctor Name (Readonly)</label>
                 <input
                   type="text"
                   name="doctorName"
-                  value={doctors.find(doc => doc.id == selectedDoctor)?.name || ''}
+                  value={doctors.find(doc => doc.id == selectedDoctor)?.fullName || ''}
                   readOnly
                 />
               </div>
@@ -208,8 +217,6 @@ const AppointmentForm = () => {
           </div>
         )}
 
-
-
         {/* Display fetched appointments */}
         <div className="appointments-list">
           <h2>Upcoming Appointments</h2>
@@ -235,7 +242,6 @@ const AppointmentForm = () => {
             <p>No appointments available</p>
           )}
         </div>
-
       </div>
     </div>
   );

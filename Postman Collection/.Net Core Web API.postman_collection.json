@@ -73,6 +73,42 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get All doctors",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"john.doe@example.com\",\r\n    \"LicenseNumber\": \"LIC12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://0.0.0.0:5001/api/doctor/all",
+							"protocol": "https",
+							"host": [
+								"0",
+								"0",
+								"0",
+								"0"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"doctor",
+								"all"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
