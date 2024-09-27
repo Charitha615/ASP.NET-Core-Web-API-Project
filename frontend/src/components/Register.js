@@ -119,6 +119,12 @@ const Register = () => {
               Login
             </Link>
           </Typography>
+          <Typography>
+            Are you doctor?{' '}
+            <Link to="/doctor-register" style={{ textDecoration: 'none' }}>
+              Register
+            </Link>
+          </Typography>
         </Box>
       </Box>
     </Container>

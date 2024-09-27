@@ -1,0 +1,235 @@
+{
+	"info": {
+		"_postman_id": "c2e482f8-edd1-4237-897d-bfe3557c9614",
+		"name": ".Net Core Web API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Doctor",
+			"item": [
+				{
+					"name": "Reg Doctor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"FullName\": \"Dr. John Doe\",\r\n    \"Email\": \"john.doe@example.com\",\r\n    \"PhoneNumber\": \"1234567890\",\r\n    \"Specialty\": \"Cardiology\",\r\n    \"LicenseNumber\": \"LIC12345\",\r\n    \"ExperienceYears\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://0.0.0.0:5001/api/doctor/register",
+							"protocol": "https",
+							"host": [
+								"0",
+								"0",
+								"0",
+								"0"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"doctor",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Doctor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"john.doe@example.com\",\r\n    \"LicenseNumber\": \"LIC12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://0.0.0.0:5001/api/doctor/login",
+							"protocol": "https",
+							"host": [
+								"0",
+								"0",
+								"0",
+								"0"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"doctor",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Register Users",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"stringss\",\r\n    \"email\": \"string@example.com\",\r\n    \"password\": \"string\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://0.0.0.0:5001/api/auth/register",
+					"protocol": "https",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"string\",\r\n  \"password\": \"string\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://0.0.0.0:5001/api/Auth/login",
+					"protocol": "https",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Appoinment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Name\": \"Jane Smith\",\r\n    \"Age\": 30,\r\n    \"userID\": 1001,\r\n    \"MedicalHistory\": \"Asthma, Seasonal Allergies\",\r\n    \"TreatmentSchedule\": \"Physical therapy twice a week, inhaler use as needed\",\r\n    \"Medications\": \"Albuterol inhaler, Claritin (10mg daily)\",\r\n    \"Contact\": \"jane.smith@example.com, +1-555-1234\",\r\n    \"DoctorID\": 2,\r\n    \"DoctorName\": \"Dr. Johnson\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://0.0.0.0:5001/api/Auth/submit-appointment",
+					"protocol": "https",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Auth",
+						"submit-appointment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Appoinments",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "https://0.0.0.0:5001/api/Auth/get-appointments",
+					"protocol": "https",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Auth",
+						"get-appointments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Appoinments By User ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://0.0.0.0:5001/api/Auth/get-appointments/1",
+					"protocol": "https",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Auth",
+						"get-appointments",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

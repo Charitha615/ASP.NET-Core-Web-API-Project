@@ -56,5 +56,37 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyAuthApi.Controllers.DoctorController",
+    "Method": "LoginDoctor",
+    "RelativePath": "api/Doctor/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "loginDto",
+        "Type": "MyAuthApi.Models.DoctorLoginDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyAuthApi.Controllers.DoctorController",
+    "Method": "RegisterDoctor",
+    "RelativePath": "api/Doctor/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "doctorDto",
+        "Type": "MyAuthApi.Models.DoctorRegisterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]
