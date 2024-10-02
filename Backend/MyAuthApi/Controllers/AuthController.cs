@@ -299,7 +299,9 @@ public class AuthController : ControllerBase
                     MedicalHistory = DecryptData(appointment.MedicalHistory, aesKey, aesIV),
                     TreatmentSchedule = DecryptData(appointment.TreatmentSchedule, aesKey, aesIV),
                     Medications = DecryptData(appointment.Medications, aesKey, aesIV),
-                    Contact = DecryptData(appointment.Contact, aesKey, aesIV)
+                    Contact = DecryptData(appointment.Contact, aesKey, aesIV),
+                    DoctorID = appointment.DoctorID, // DoctorID is an integer and does not need to be decrypted
+                    DoctorName = appointment.DoctorName, // DoctorName is encrypted, so decrypt it
                 };
             }).ToList();
 
@@ -322,5 +324,131 @@ public class AuthController : ControllerBase
     }
 
 
-   
+    // Method to get all users
+    [HttpGet("get-users")]
+    public IActionResult GetAllUsers()
+    {
+        try
+        {
+            // Retrieve all users from the database
+            var users = _context.Users.Select(user => new
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email, // Be cautious with sensitive data like Email
+                                    // Optionally include other fields, but avoid sensitive ones like password
+            }).ToList();
+
+            return Ok(new
+            {
+                message = "Users retrieved successfully.",
+                statusCode = 200,
+                data = users
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "An error occurred while retrieving users.",
+                statusCode = 500,
+                error = ex.Message
+            });
+        }
+    }
+
+
+    [HttpGet("get-appointments/{userId}")]
+    public IActionResult GetAppointmentsByUser(int userId)
+    {
+        try
+        {
+            // Join appointments with doctors where UserID matches
+            var appointments = (from appointment in _context.Appointments
+                                join doctor in _context.Doctors
+                                on appointment.DoctorID equals doctor.DoctorId
+                                where appointment.userID == userId
+                                select new
+                                {
+                                    Id = appointment.Id,
+                                    Name = appointment.Name, // Encrypted, needs decryption
+                                    Age = appointment.Age,
+                                    UserID = appointment.userID,
+                                    MedicalHistory = appointment.MedicalHistory, // Encrypted, needs decryption
+                                    TreatmentSchedule = appointment.TreatmentSchedule, // Encrypted, needs decryption
+                                    Medications = appointment.Medications, // Encrypted, needs decryption
+                                    Contact = appointment.Contact, // Encrypted, needs decryption
+                                    DoctorID = appointment.DoctorID,
+                                    DoctorName = appointment.DoctorName,
+
+                                    // Doctor details from doctors table
+                                    DoctorDetails = new
+                                    {
+                                        DoctorID = doctor.DoctorId,
+                                        FullName = doctor.FullName,
+                                        Email = doctor.Email,
+                                        PhoneNumber = doctor.PhoneNumber,
+                                        Specialty = doctor.Specialty,
+                                        LicenseNumber = doctor.LicenseNumber,
+                                        ExperienceYears = doctor.ExperienceYears
+                                    },
+                                    AesKey = appointment.AesKey,
+                                    AesIV = appointment.AesIV
+                                }).ToList();
+
+            if (!appointments.Any())
+            {
+                return NotFound(new
+                {
+                    message = "No appointments found for the specified UserID.",
+                    statusCode = 404
+                });
+            }
+
+            // Decrypt sensitive data for each appointment
+            var decryptedAppointments = appointments.Select(appointment =>
+            {
+                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  // Retrieve AES key
+                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    // Retrieve AES IV
+
+                return new
+                {
+                    Id = appointment.Id,
+                    Name = DecryptData(appointment.Name, aesKey, aesIV),
+                    Age = appointment.Age,
+                    UserID = appointment.UserID,
+                    MedicalHistory = DecryptData(appointment.MedicalHistory, aesKey, aesIV),
+                    TreatmentSchedule = DecryptData(appointment.TreatmentSchedule, aesKey, aesIV),
+                    Medications = DecryptData(appointment.Medications, aesKey, aesIV),
+                    Contact = DecryptData(appointment.Contact, aesKey, aesIV),
+                    DoctorID = appointment.DoctorID,
+                    DoctorName = appointment.DoctorName,
+
+                    // Doctor details from doctors table
+                    DoctorDetails = appointment.DoctorDetails
+                };
+            }).ToList();
+
+            return Ok(new
+            {
+                message = "Appointments retrieved successfully.",
+                statusCode = 200,
+                data = decryptedAppointments
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "An error occurred while retrieving the appointments.",
+                statusCode = 500,
+                error = ex.Message
+            });
+        }
+    }
+
+
+
+
+
 }

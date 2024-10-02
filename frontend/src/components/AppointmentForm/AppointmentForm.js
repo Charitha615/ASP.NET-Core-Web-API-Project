@@ -43,12 +43,25 @@ const AppointmentForm = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/get-appointments`, {
+        // Retrieve userId from local storage
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          console.error('User ID not found in local storage');
+          return;
+        }
+
+        // Fetch appointments for the specific user
+        const response = await fetch(`${API_BASE_URL}/get-appointments/${userId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch appointments');
+        }
+
         const data = await response.json();
         setAppointments(data.data); // Assuming API response has the "data" key
       } catch (error) {

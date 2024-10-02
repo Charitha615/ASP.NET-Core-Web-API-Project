@@ -99,5 +99,30 @@ namespace MyAuthApi.Controllers
 
             return Ok(doctors);
         }
+        [HttpGet("{id}")]
+        public IActionResult GetDoctorById(int id)
+        {
+            // Find the doctor by their ID
+            var doctor = _context.Doctors
+                .FirstOrDefault(d => d.DoctorId == id);
+
+            if (doctor == null)
+            {
+                // Return 404 if doctor not found
+                return NotFound(new { message = "Doctor not found!" });
+            }
+
+            // Return doctor details if found
+            return Ok(new
+            {
+                id = doctor.DoctorId,
+                fullName = doctor.FullName,
+                email = doctor.Email,
+                phoneNumber = doctor.PhoneNumber,
+                specialty = doctor.Specialty,
+                licenseNumber = doctor.LicenseNumber,
+                experienceYears = doctor.ExperienceYears
+            });
+        }
     }
 }
