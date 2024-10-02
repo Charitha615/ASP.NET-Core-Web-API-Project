@@ -109,6 +109,42 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get doctors ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"john.doe@example.com\",\r\n    \"LicenseNumber\": \"LIC12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://0.0.0.0:5001/api/doctor/1",
+							"protocol": "https",
+							"host": [
+								"0",
+								"0",
+								"0",
+								"0"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"doctor",
+								"1"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -262,6 +298,30 @@
 						"Auth",
 						"get-appointments",
 						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All User",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://0.0.0.0:5001/api/auth/get-users",
+					"protocol": "https",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"auth",
+						"get-users"
 					]
 				}
 			},
