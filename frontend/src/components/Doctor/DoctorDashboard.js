@@ -9,8 +9,9 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
-import LogoutIcon from '@mui/icons-material/Logout'; // Logout icon
+import LogoutIcon from '@mui/icons-material/Logout'; 
 import { useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 
 const API_BASE_URL = 'https://localhost:5001/api'; // Update to your base API URL
 
@@ -122,7 +123,7 @@ const DoctorDashboard = () => {
 
             <Grid item xs={12} sm={8}>
               <Typography variant="h5" component="div" gutterBottom>
-                {doctorDetails.fullName}
+              {DOMPurify.sanitize(doctorDetails.fullName)}
               </Typography>
 
               {/* Doctor Details */}

@@ -102,27 +102,50 @@ namespace MyAuthApi.Controllers
         [HttpGet("{id}")]
         public IActionResult GetDoctorById(int id)
         {
-            // Find the doctor by their ID
-            var doctor = _context.Doctors
-                .FirstOrDefault(d => d.DoctorId == id);
+            var doctor = _context.Doctors.FirstOrDefault(d => d.DoctorId == id);
 
             if (doctor == null)
             {
-                // Return 404 if doctor not found
                 return NotFound(new { message = "Doctor not found!" });
             }
 
-            // Return doctor details if found
-            return Ok(new
+            var safeDoctor = new
             {
                 id = doctor.DoctorId,
-                fullName = doctor.FullName,
-                email = doctor.Email,
-                phoneNumber = doctor.PhoneNumber,
-                specialty = doctor.Specialty,
-                licenseNumber = doctor.LicenseNumber,
+                fullName = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(doctor.FullName),
+                email = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(doctor.Email),
+                phoneNumber = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(doctor.PhoneNumber),
+                specialty = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(doctor.Specialty),
+                licenseNumber = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(doctor.LicenseNumber),
                 experienceYears = doctor.ExperienceYears
-            });
+            };
+
+            return Ok(safeDoctor);
         }
+
+        //public IActionResult GetDoctorById(int id)
+        //{
+        //    // Find the doctor by their ID
+        //    var doctor = _context.Doctors
+        //        .FirstOrDefault(d => d.DoctorId == id);
+
+        //    if (doctor == null)
+        //    {
+        //        // Return 404 if doctor not found
+        //        return NotFound(new { message = "Doctor not found!" });
+        //    }
+
+        //    // Return doctor details if found
+        //    return Ok(new
+        //    {
+        //        id = doctor.DoctorId,
+        //        fullName = doctor.FullName,
+        //        email = doctor.Email,
+        //        phoneNumber = doctor.PhoneNumber,
+        //        specialty = doctor.Specialty,
+        //        licenseNumber = doctor.LicenseNumber,
+        //        experienceYears = doctor.ExperienceYears
+        //    });
+        //}
     }
 }

@@ -36,6 +36,17 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
+// Middleware to set security headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Add("X-Frame-Options", "DENY");
+    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; script-src 'self'; object-src 'none';");
+
+    await next();
+});
+
 // Enable CORS for the application
 app.UseCors("AllowReactApp");
 
