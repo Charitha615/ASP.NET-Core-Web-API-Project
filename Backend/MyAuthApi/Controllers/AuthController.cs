@@ -3,16 +3,23 @@ using System.Security.Cryptography;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using MyAuthApi.Models;
 
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly string _jwtSecret;
 
     public AuthController(AppDbContext context)
     {
         _context = context;
+        _jwtSecret = "Zm9vYmFyZm9vYmFyZm9vYmFyZm9vYmFyZm9vYmFyZm9vYmFy";
     }
 
     // RSA Key Generation
@@ -79,6 +86,24 @@ public class AuthController : ControllerBase
         return srDecrypt.ReadToEnd();
     }
 
+
+    // Helper method to log user actions
+    private async Task LogUserAction(int userId, string action, string details)
+    {
+        var log = new UserLog
+        {
+            UserId = userId,
+            Action = action,
+            Details = details,
+            Timestamp = DateTime.UtcNow,
+            IPAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+        };
+
+        _context.UserLogs.Add(log);
+        await _context.SaveChangesAsync();
+    }
+
+
     // Register method with AES encrypted password storage
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRegisterDto request)
@@ -114,6 +139,8 @@ public class AuthController : ControllerBase
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
+            await LogUserAction(user.Id, "User Registration", $"User {request.Username} registered with email {request.Email}.");
+
             return Ok(new
             {
                 message = "User registered successfully.",
@@ -132,22 +159,70 @@ public class AuthController : ControllerBase
         }
     }
 
-    // Login method
+
+
     [HttpPost("login")]
-    public IActionResult Login(UserLoginDto request)
+    public async Task<IActionResult> Login(UserLoginDto request)
     {
         var user = _context.Users.SingleOrDefault(u => u.Username == request.Username);
         if (user == null || !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+        {
             return BadRequest(new { message = "Invalid username or password." });
+        }
 
-        // If the login is successful, return a success message, user ID, and status code.
+        var token = GenerateJwtToken(user);
+
+        await LogUserAction(user.Id, "User Login", $"User {request.Username} logged in.");
+
         return Ok(new
         {
             message = "Login successful.",
-            statusCode = 200,
-            userId = user.Id // Assuming user.Id is the user's unique identifier
+            token = token,
+            userId = user.Id
         });
     }
+
+    private string GenerateJwtToken(User user)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_jwtSecret);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username)
+            }),
+            Expires = DateTime.UtcNow.AddDays(7), // Token valid for 7 days
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
+
+    private bool VerifyPasswordHash(string password, string storedHash, string storedSalt)
+    {
+        using var hmac = new HMACSHA256(Convert.FromBase64String(storedSalt));
+        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return Convert.ToBase64String(computedHash) == storedHash;
+    }
+
+    //// Login method
+    //[HttpPost("login")]
+    //public IActionResult Login(UserLoginDto request)
+    //{
+    //    var user = _context.Users.SingleOrDefault(u => u.Username == request.Username);
+    //    if (user == null || !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+    //        return BadRequest(new { message = "Invalid username or password." });
+
+    //    // If the login is successful, return a success message, user ID, and status code.
+    //    return Ok(new
+    //    {
+    //        message = "Login successful.",
+    //        statusCode = 200,
+    //        userId = user.Id // Assuming user.Id is the user's unique identifier
+    //    });
+//}
 
     // AES key generation (this is an example, you can change this to your key management strategy)
     private byte[] GenerateAESKey()
@@ -165,12 +240,12 @@ public class AuthController : ControllerBase
         passwordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
     }
 
-    private bool VerifyPasswordHash(string password, string storedHash, string storedSalt)
-    {
-        using var hmac = new HMACSHA256(Convert.FromBase64String(storedSalt)); // Use the stored salt (hmac key)
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return Convert.ToBase64String(computedHash) == storedHash;
-    }
+    //private bool VerifyPasswordHash(string password, string storedHash, string storedSalt)
+    //{
+    //    using var hmac = new HMACSHA256(Convert.FromBase64String(storedSalt)); // Use the stored salt (hmac key)
+    //    var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+    //    return Convert.ToBase64String(computedHash) == storedHash;
+    //}
 
     // AES encryption method (as provided earlier)
     private string EncryptData(string plainText, byte[] key, byte[] iv)
@@ -231,6 +306,7 @@ public class AuthController : ControllerBase
     }
 
     // Submit appointment method with encrypted sensitive data
+    [Authorize]
     [HttpPost("submit-appointment")]
     public async Task<IActionResult> SubmitAppointment(AppointmentDto request)
     {
@@ -257,6 +333,7 @@ public class AuthController : ControllerBase
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
+            await LogUserAction(request.userID, "Appointment Submission", $"Appointment for {request.Name} with doctor {request.DoctorName}.");
             return Ok(new
             {
                 message = "Appointment saved successfully.",
@@ -276,6 +353,7 @@ public class AuthController : ControllerBase
     }
 
     // Method to retrieve all appointments
+    [Authorize] // This will require the user to be authenticated
     [HttpGet("get-appointments")]
     public IActionResult GetAppointments()
     {
@@ -325,6 +403,7 @@ public class AuthController : ControllerBase
 
 
     // Method to get all users
+    [Authorize]
     [HttpGet("get-users")]
     public IActionResult GetAllUsers()
     {
@@ -447,8 +526,94 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpGet("get-appointments/bydoctor/{doctorId}")]
+    public IActionResult GetAppointmentsByDoctor(int doctorId)
+    {
+        try
+        {
+            // Join appointments with users where DoctorID matches
+            var appointments = (from appointment in _context.Appointments
+                                join doctor in _context.Doctors
+                                on appointment.DoctorID equals doctor.DoctorId
+                                where appointment.DoctorID == doctorId
+                                select new
+                                {
+                                    Id = appointment.Id,
+                                    Name = appointment.Name, // Encrypted, needs decryption
+                                    Age = appointment.Age,
+                                    UserID = appointment.userID,
+                                    MedicalHistory = appointment.MedicalHistory, // Encrypted, needs decryption
+                                    TreatmentSchedule = appointment.TreatmentSchedule, // Encrypted, needs decryption
+                                    Medications = appointment.Medications, // Encrypted, needs decryption
+                                    Contact = appointment.Contact, // Encrypted, needs decryption
+                                    DoctorID = appointment.DoctorID,
+                                    DoctorName = doctor.FullName, // Get doctor's name
 
+                                    // Doctor details from doctors table
+                                    DoctorDetails = new
+                                    {
+                                        DoctorID = doctor.DoctorId,
+                                        FullName = doctor.FullName,
+                                        Email = doctor.Email,
+                                        PhoneNumber = doctor.PhoneNumber,
+                                        Specialty = doctor.Specialty,
+                                        LicenseNumber = doctor.LicenseNumber,
+                                        ExperienceYears = doctor.ExperienceYears
+                                    },
+                                    AesKey = appointment.AesKey,
+                                    AesIV = appointment.AesIV
+                                }).ToList();
 
+            if (!appointments.Any())
+            {
+                return NotFound(new
+                {
+                    message = "No appointments found for the specified DoctorID.",
+                    statusCode = 404
+                });
+            }
+
+            // Decrypt sensitive data for each appointment
+            var decryptedAppointments = appointments.Select(appointment =>
+            {
+                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  // Retrieve AES key
+                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    // Retrieve AES IV
+
+                return new
+                {
+                    Id = appointment.Id,
+                    Name = DecryptData(appointment.Name, aesKey, aesIV),
+                    Age = appointment.Age,
+                    UserID = appointment.UserID,
+                    MedicalHistory = DecryptData(appointment.MedicalHistory, aesKey, aesIV),
+                    TreatmentSchedule = DecryptData(appointment.TreatmentSchedule, aesKey, aesIV),
+                    Medications = DecryptData(appointment.Medications, aesKey, aesIV),
+                    Contact = DecryptData(appointment.Contact, aesKey, aesIV),
+                    DoctorID = appointment.DoctorID,
+                    DoctorName = appointment.DoctorName,
+
+                    // Doctor details from doctors table
+                    DoctorDetails = appointment.DoctorDetails
+                };
+            }).ToList();
+
+            return Ok(new
+            {
+                message = "Appointments retrieved successfully.",
+                statusCode = 200,
+                data = decryptedAppointments
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "An error occurred while retrieving the appointments.",
+                statusCode = 500,
+                error = ex.Message
+            });
+        }
+    }
 
 
 }

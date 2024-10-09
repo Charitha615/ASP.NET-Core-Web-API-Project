@@ -94,18 +94,30 @@ const AppointmentForm = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Retrieve the token from localStorage
+    const token = localStorage.getItem('token');
+
+    // If no token is found, handle the error (e.g., redirect to login or show an error message)
+    if (!token) {
+      alert('You are not authorized. Please log in.');
+      return;
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/submit-appointment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData), // Assuming `formData` is the data you're submitting
       });
 
       if (response.ok) {
         const data = await response.json();
         alert('Appointment saved successfully!');
+        window.location.reload();
       } else {
         const errorData = await response.json();
         alert('Failed to save appointment: ' + errorData.message);
@@ -115,6 +127,7 @@ const AppointmentForm = () => {
       alert('An error occurred while submitting the form.');
     }
   };
+
 
   return (
     <div>

@@ -13,6 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
+    localStorage.clear();
     e.preventDefault();
 
     try {
@@ -36,6 +37,8 @@ const Login = () => {
         if (response.ok) {
           // Store userId in localStorage
           localStorage.setItem('userId', data.userId);
+          localStorage.setItem('token', data.token);
+          console.log(data);
           Swal('Success', 'Login successful', 'success');
           navigate('/home'); // Redirect to home for normal users
         } else {
@@ -58,6 +61,8 @@ const Login = () => {
         if (response.ok) {
           // Store doctorId in localStorage
           localStorage.setItem('doctorId', data.doctorDetails.id);
+          localStorage.setItem('token', data.token);
+          console.log(data);
           Swal('Success', 'Login successful', 'success');
           navigate('/doctorDashboard'); // Redirect to doctor dashboard for doctors
         } else {

@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MyAuthApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace MyAuthApi.Controllers
 {
@@ -50,10 +54,14 @@ namespace MyAuthApi.Controllers
 
                 if (doctor != null)
                 {
-                    // If the doctor is found, return the doctor details in the response
+                    // Generate JWT token for the doctor
+                    var token = GenerateJwtToken(doctor);
+
+                    // If the doctor is found, return the doctor details and the token in the response
                     return Ok(new
                     {
                         message = "Login successful!",
+                        token = token,
                         doctorDetails = new
                         {
                             id = doctor.DoctorId,
@@ -74,6 +82,29 @@ namespace MyAuthApi.Controllers
             }
 
             return BadRequest(ModelState);
+        }
+
+        // Method to generate JWT token
+        private string GenerateJwtToken(Doctor doctor)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("Zm9vYmFyZm9vYmFyZm9vYmFyZm9vYmFyZm9vYmFyZm9vYmFy"); // Ensure this matches the key in Program.cs
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+            new Claim(ClaimTypes.NameIdentifier, doctor.DoctorId.ToString()),
+            new Claim(ClaimTypes.Name, doctor.FullName),
+            new Claim("email", doctor.Email),
+            new Claim("licenseNumber", doctor.LicenseNumber)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7), // Token expiration (e.g., 7 days)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
         [HttpGet("all")]

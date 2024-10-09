@@ -9,7 +9,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
-import LogoutIcon from '@mui/icons-material/Logout'; 
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 
@@ -42,15 +42,31 @@ const DoctorDashboard = () => {
 
   // Fetch Patients
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/auth/get-users`)
+    // Get the token from localStorage
+    const token = localStorage.getItem('token');
+
+    // If no token is found, handle the error (you may want to redirect to login or show an error message)
+    if (!token) {
+      console.error('No token found, please log in.');
+      return;
+    }
+
+    // Make the request with the Authorization header
+    axios.get(`${API_BASE_URL}/auth/get-users`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    })
       .then(response => {
-        setPatients(response.data.data); // Assuming API response is { data: [{id, username, email}] }
+        setPatients(response.data.data); // Assuming the response contains { data: [...] }
         setFilteredPatients(response.data.data);
       })
       .catch(error => {
         console.error('Error fetching patient data:', error);
       });
   }, []);
+
+
 
   // Fetch Appointments by User ID
   const fetchAppointments = (userId) => {
@@ -93,16 +109,31 @@ const DoctorDashboard = () => {
     return <Typography>Loading doctor details...</Typography>;
   }
 
+  // Fetch Appointments by Doctor ID when Manage Appointments is clicked
+  const handleManageAppointmentsClick = () => {
+    const storedDoctorId = localStorage.getItem('doctorId');
+
+    axios.get(`${API_BASE_URL}/auth/get-appointments/bydoctor/${storedDoctorId}`)
+      .then(response => {
+        setAppointments(response.data.data); // Store the appointments in the state
+        setOpen(true); // Open modal to show appointments
+      })
+      .catch(error => {
+        console.error('Error fetching appointments:', error);
+      });
+  };
+
+
   return (
     <Box sx={{ padding: 4, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
-       <Grid container justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
+      <Grid container justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
         <Typography variant="h4">Welcome to Doctor Dashboard</Typography>
-        
+
         {/* Logout Button */}
-        <Button 
-          variant="contained" 
-          color="secondary" 
-          startIcon={<LogoutIcon />} 
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<LogoutIcon />}
           onClick={handleLogout}
         >
           Logout
@@ -123,7 +154,7 @@ const DoctorDashboard = () => {
 
             <Grid item xs={12} sm={8}>
               <Typography variant="h5" component="div" gutterBottom>
-              {DOMPurify.sanitize(doctorDetails.fullName)}
+                {DOMPurify.sanitize(doctorDetails.fullName)}
               </Typography>
 
               {/* Doctor Details */}
@@ -172,12 +203,14 @@ const DoctorDashboard = () => {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <Card
-              sx={{ textAlign: 'center', padding: 2, borderRadius: 3, backgroundColor: '#43a047', color: 'white' }}
+              sx={{ textAlign: 'center', padding: 2, borderRadius: 3, backgroundColor: '#43a047', color: 'white', cursor: 'pointer' }}
+              onClick={handleManageAppointmentsClick} // Add this click handler
             >
               <WorkIcon sx={{ fontSize: 40 }} />
               <Typography>Manage Appointments</Typography>
             </Card>
           </Grid>
+
           <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{ textAlign: 'center', padding: 2, borderRadius: 3, backgroundColor: '#f57c00', color: 'white' }}
@@ -261,11 +294,13 @@ const DoctorDashboard = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 600,
+            width: '80%',
+            maxHeight: '80vh', // Limit the height of the modal
             bgcolor: 'background.paper',
             borderRadius: 2, // Rounded corners
             boxShadow: 24,
-            p: 4
+            p: 4,
+            overflowY: 'auto' // Scrollable content
           }}
         >
           <Typography
@@ -274,66 +309,87 @@ const DoctorDashboard = () => {
             component="h2"
             sx={{
               fontWeight: 'bold',
-              marginBottom: 3
+              marginBottom: 3,
+              textAlign: 'center',
+              color: '#1976d2' // Modern blue color
             }}
           >
             Appointments
           </Typography>
 
-          {appointments.map(appointment => (
-            <Box
-              key={appointment.id}
-              sx={{
-                marginBottom: 3,
-                p: 2,
-                border: '1px solid #e0e0e0',
-                borderRadius: 1, // Make each appointment look card-like
-                backgroundColor: '#f9f9f9'
-              }}
-            >
-              <Typography variant="subtitle1" gutterBottom>
-                <strong>Name:</strong> {appointment.name}
+          {/* Scrollable Container for Appointments */}
+          <Box
+            sx={{
+              maxHeight: '60vh', // Limit height to make it scrollable
+              overflowY: 'auto', // Enable vertical scrolling
+              paddingRight: 2 // Avoid content being hidden behind scrollbar
+            }}
+          >
+            {appointments.length > 0 ? (
+              appointments.map(appointment => (
+                <Box
+                  key={appointment.id}
+                  sx={{
+                    marginBottom: 3,
+                    p: 3,
+                    borderRadius: 2, // Rounded corners for each appointment
+                    backgroundColor: '#fff',
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', // Slight shadow for card-like feel
+                    transition: 'transform 0.3s ease-in-out',
+                    '&:hover': {
+                      transform: 'scale(1.02)', // Scale on hover for a modern effect
+                    }
+                  }}
+                >
+                  <Typography variant="h6" gutterBottom sx={{ color: '#333' }}>
+                    {appointment.name}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Age:</strong> {appointment.age}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Medical History:</strong> {appointment.medicalHistory}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Treatment Schedule:</strong> {appointment.treatmentSchedule}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Medications:</strong> {appointment.medications}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Contact:</strong> {appointment.contact}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Doctor:</strong> {appointment.doctorDetails.fullName}
+                  </Typography>
+                </Box>
+              ))
+            ) : (
+              <Typography variant="body2" color="textSecondary">
+                No appointments found.
               </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Age:</strong> {appointment.age}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Medical History:</strong> {appointment.medicalHistory}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Treatment Schedule:</strong> {appointment.treatmentSchedule}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Medications:</strong> {appointment.medications}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Contact:</strong> {appointment.contact}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Doctor:</strong> {appointment.doctorDetails.fullName}
-              </Typography>
-            </Box>
-          ))}
+            )}
+          </Box>
 
-          <Box sx={{ textAlign: 'center' }}>
+          {/* Close Button */}
+          <Box sx={{ textAlign: 'center', marginTop: 2 }}>
             <Button
               variant="contained"
               color="primary"
               onClick={handleClose}
               sx={{
-                borderRadius: '20px', // Rounded button
+                borderRadius: '20px',
                 padding: '8px 16px',
                 fontWeight: 'bold',
-                mt: 2
               }}
             >
-              <CloseIcon sx={{ marginRight: 1 }} /> {/* Add close icon */}
+              <CloseIcon sx={{ marginRight: 1 }} />
               Close
             </Button>
           </Box>
         </Box>
-
       </Modal>
+
     </Box>
   );
 };

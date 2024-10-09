@@ -27,6 +27,22 @@
   },
   {
     "ContainingType": "AuthController",
+    "Method": "GetAppointmentsByDoctor",
+    "RelativePath": "api/Auth/get-appointments/bydoctor/{doctorId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "doctorId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthController",
     "Method": "GetAllUsers",
     "RelativePath": "api/Auth/get-users",
     "HttpMethod": "GET",
