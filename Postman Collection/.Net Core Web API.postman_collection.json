@@ -217,11 +217,21 @@
 		{
 			"name": "Add Appoinment",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiJzdHJpbmciLCJuYmYiOjE3Mjg0OTkyMjMsImV4cCI6MTcyOTEwNDAyMywiaWF0IjoxNzI4NDk5MjIzfQ.CQxIpsQawogLIhtbagvZIg_5126KZWhUlW1q6gwSRM4",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"Name\": \"Jane Smith\",\r\n    \"Age\": 30,\r\n    \"userID\": 1001,\r\n    \"MedicalHistory\": \"Asthma, Seasonal Allergies\",\r\n    \"TreatmentSchedule\": \"Physical therapy twice a week, inhaler use as needed\",\r\n    \"Medications\": \"Albuterol inhaler, Claritin (10mg daily)\",\r\n    \"Contact\": \"jane.smith@example.com, +1-555-1234\",\r\n    \"DoctorID\": 2,\r\n    \"DoctorName\": \"Dr. Johnson\"\r\n}",
+					"raw": "{\r\n    \"Name\": \"Jane Smiths\",\r\n    \"Age\": 30,\r\n    \"userID\": 1001,\r\n    \"MedicalHistory\": \"Asthma, Seasonal Allergies\",\r\n    \"TreatmentSchedule\": \"Physical therapy twice a week, inhaler use as needed\",\r\n    \"Medications\": \"Albuterol inhaler, Claritin (10mg daily)\",\r\n    \"Contact\": \"jane.smith@example.com, +1-555-1234\",\r\n    \"DoctorID\": 2,\r\n    \"DoctorName\": \"Dr. Johnson\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -253,6 +263,16 @@
 				"disableBodyPruning": true
 			},
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiI8c2NyaXB0PmFsZXJ0KCdYU1MnKTwvc2NyaXB0PiIsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJsaWNlbnNlTnVtYmVyIjoiTElDMTIzNDUiLCJuYmYiOjE3Mjg0OTc4OTgsImV4cCI6MTcyOTEwMjY5OCwiaWF0IjoxNzI4NDk3ODk4fQ.5GUd-gCcNeKLxb1aU6KaaqFHLG8n5Z-0IA5I2cvtQEM",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -304,8 +324,44 @@
 			"response": []
 		},
 		{
+			"name": "Get Appoinments By Doctor ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://0.0.0.0:5001/api/Auth/get-appointments/bydoctor/2",
+					"protocol": "https",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Auth",
+						"get-appointments",
+						"bydoctor",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get All User",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiI8c2NyaXB0PmFsZXJ0KCdYU1MnKTwvc2NyaXB0PiIsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJsaWNlbnNlTnVtYmVyIjoiTElDMTIzNDUiLCJuYmYiOjE3Mjg0OTg5NjAsImV4cCI6MTcyOTEwMzc2MCwiaWF0IjoxNzI4NDk4OTYwfQ.f4SJ09gOage6t670y5IBAYPpboCdwUIUwQ7gWsEU_ro",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
