@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./DoctorRegistration.css"; // Importing the external CSS
+import "./DoctorRegistration.css"; 
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
@@ -165,6 +165,7 @@ const DoctorRegistration = () => {
             Register
           </button>
         </form>
+       
       </div>
     </div>
   );

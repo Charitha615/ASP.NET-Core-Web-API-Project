@@ -42,8 +42,7 @@
               "RelativeToolTip": "Data\\AppDbContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-09T18:46:23.227Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-09T18:46:23.227Z"
             },
             {
               "$type": "Document",
@@ -55,8 +54,7 @@
               "RelativeToolTip": "Models\\UserLog.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-09T18:46:04.45Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-09T18:46:04.45Z"
             },
             {
               "$type": "Document",
@@ -68,8 +66,7 @@
               "RelativeToolTip": "Controllers\\DoctorController.cs",
               "ViewState": "AgIAAHYAAAAAAAAAAAAcwFoAAABfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-09T18:15:54.754Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-09T18:15:54.754Z"
             },
             {
               "$type": "Document",
@@ -79,7 +76,7 @@
               "RelativeDocumentMoniker": "Controllers\\AuthController.cs",
               "ToolTip": "D:\\Program Project\\OutSource\\KasUnOutsourceProject\\ASP.NET Core Web API Project\\GIT\\ASP.NET-Core-Web-API-Project\\Backend\\MyAuthApi\\Controllers\\AuthController.cs",
               "RelativeToolTip": "Controllers\\AuthController.cs",
-              "ViewState": "AgIAAAICAAAAAAAAAADwvxACAAAOAAAAAAAAAA==",
+              "ViewState": "AgIAAAICAAAAAAAAAADwvxgCAABOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-09T17:36:19.494Z",
               "EditorCaption": ""
@@ -94,8 +91,7 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAC0AAAAAAAAAAAAAABwAAABEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-09T17:35:46.988Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-09T17:35:46.988Z"
             }
           ]
         }
