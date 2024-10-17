@@ -225,3 +225,5 @@ D:\Program Project\OutSource\KasUnOutsourceProject\ASP.NET Core Web API Project\
 D:\Program Project\OutSource\KasUnOutsourceProject\ASP.NET Core Web API Project\GIT\ASP.NET-Core-Web-API-Project\Backend\MyAuthApi\obj\Debug\net8.0\MyAuthApi.pdb
 D:\Program Project\OutSource\KasUnOutsourceProject\ASP.NET Core Web API Project\GIT\ASP.NET-Core-Web-API-Project\Backend\MyAuthApi\obj\Debug\net8.0\MyAuthApi.genruntimeconfig.cache
 D:\Program Project\OutSource\KasUnOutsourceProject\ASP.NET Core Web API Project\GIT\ASP.NET-Core-Web-API-Project\Backend\MyAuthApi\obj\Debug\net8.0\ref\MyAuthApi.dll
+D:\Program Project\OutSource\KasUnOutsourceProject\ASP.NET Core Web API Project\GIT\ASP.NET-Core-Web-API-Project\Backend\MyAuthApi\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+D:\Program Project\OutSource\KasUnOutsourceProject\ASP.NET Core Web API Project\GIT\ASP.NET-Core-Web-API-Project\Backend\MyAuthApi\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll

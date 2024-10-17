@@ -2,7 +2,7 @@
 {
     public class UserLog
     {
-        public int LogId { get; set; }  // This is the primary key
+        public int LogId { get; set; }  
         public int UserId { get; set; }
         public string Action { get; set; }
         public string Details { get; set; }

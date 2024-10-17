@@ -125,14 +125,14 @@ public class AuthController : ControllerBase
             CreatePasswordHash(request.Password, out string passwordHash, out string passwordSalt);
 
             // Encrypt sensitive data before storing it in the database
-            byte[] aesKey = GenerateAESKey(); // You should securely generate or retrieve this AES key
+            byte[] aesKey = GenerateAESKey();
             var user = new User
             {
                 Username = request.Username,
                 Email = request.Email,
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt, // Store the salt
-                EncryptedEmail = EncryptDatas(request.Email, aesKey) // Example of encrypting an email
+                PasswordSalt = passwordSalt, 
+                EncryptedEmail = EncryptDatas(request.Email, aesKey) 
             };
 
             // Add the user to the database
@@ -145,7 +145,7 @@ public class AuthController : ControllerBase
             {
                 message = "User registered successfully.",
                 statusCode = 200,
-                userId = user.Id // Assuming user.Id is generated on save
+                userId = user.Id 
             });
         }
         catch (Exception ex)
@@ -154,7 +154,7 @@ public class AuthController : ControllerBase
             {
                 message = "An error occurred while processing your request.",
                 statusCode = 500,
-                error = ex.Message // Optional: you can log this or return a more user-friendly message
+                error = ex.Message
             });
         }
     }
@@ -193,7 +193,7 @@ public class AuthController : ControllerBase
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username)
             }),
-            Expires = DateTime.UtcNow.AddDays(7), // Token valid for 7 days
+            Expires = DateTime.UtcNow.AddMinutes(2),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -207,24 +207,8 @@ public class AuthController : ControllerBase
         return Convert.ToBase64String(computedHash) == storedHash;
     }
 
-    //// Login method
-    //[HttpPost("login")]
-    //public IActionResult Login(UserLoginDto request)
-    //{
-    //    var user = _context.Users.SingleOrDefault(u => u.Username == request.Username);
-    //    if (user == null || !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-    //        return BadRequest(new { message = "Invalid username or password." });
 
-    //    // If the login is successful, return a success message, user ID, and status code.
-    //    return Ok(new
-    //    {
-    //        message = "Login successful.",
-    //        statusCode = 200,
-    //        userId = user.Id // Assuming user.Id is the user's unique identifier
-    //    });
-//}
-
-    // AES key generation (this is an example, you can change this to your key management strategy)
+    // AES key generation 
     private byte[] GenerateAESKey()
     {
         using Aes aesAlg = Aes.Create();
@@ -240,12 +224,7 @@ public class AuthController : ControllerBase
         passwordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
     }
 
-    //private bool VerifyPasswordHash(string password, string storedHash, string storedSalt)
-    //{
-    //    using var hmac = new HMACSHA256(Convert.FromBase64String(storedSalt)); // Use the stored salt (hmac key)
-    //    var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-    //    return Convert.ToBase64String(computedHash) == storedHash;
-    //}
+   
 
     // AES encryption method (as provided earlier)
     private string EncryptData(string plainText, byte[] key, byte[] iv)
@@ -365,8 +344,8 @@ public class AuthController : ControllerBase
             // Decrypt sensitive data before sending the response
             var decryptedAppointments = appointments.Select(appointment =>
             {
-                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  // Retrieve AES key
-                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    // Retrieve AES IV
+                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  
+                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    
 
                 return new
                 {
@@ -378,8 +357,8 @@ public class AuthController : ControllerBase
                     TreatmentSchedule = DecryptData(appointment.TreatmentSchedule, aesKey, aesIV),
                     Medications = DecryptData(appointment.Medications, aesKey, aesIV),
                     Contact = DecryptData(appointment.Contact, aesKey, aesIV),
-                    DoctorID = appointment.DoctorID, // DoctorID is an integer and does not need to be decrypted
-                    DoctorName = appointment.DoctorName, // DoctorName is encrypted, so decrypt it
+                    DoctorID = appointment.DoctorID,
+                    DoctorName = appointment.DoctorName, 
                 };
             }).ToList();
 
@@ -414,8 +393,8 @@ public class AuthController : ControllerBase
             {
                 Id = user.Id,
                 Username = user.Username,
-                Email = user.Email, // Be cautious with sensitive data like Email
-                                    // Optionally include other fields, but avoid sensitive ones like password
+                Email = user.Email, 
+                                    
             }).ToList();
 
             return Ok(new
@@ -442,33 +421,44 @@ public class AuthController : ControllerBase
     {
         try
         {
-            // Join appointments with doctors where UserID matches
+            // Join appointments with users and doctors where UserID matches
             var appointments = (from appointment in _context.Appointments
+                                join user in _context.Users
+                                on appointment.userID equals user.Id
                                 join doctor in _context.Doctors
                                 on appointment.DoctorID equals doctor.DoctorId
                                 where appointment.userID == userId
                                 select new
                                 {
                                     Id = appointment.Id,
-                                    Name = appointment.Name, // Encrypted, needs decryption
+                                    Name = appointment.Name, 
                                     Age = appointment.Age,
                                     UserID = appointment.userID,
-                                    MedicalHistory = appointment.MedicalHistory, // Encrypted, needs decryption
-                                    TreatmentSchedule = appointment.TreatmentSchedule, // Encrypted, needs decryption
-                                    Medications = appointment.Medications, // Encrypted, needs decryption
-                                    Contact = appointment.Contact, // Encrypted, needs decryption
+                                    MedicalHistory = appointment.MedicalHistory, 
+                                    TreatmentSchedule = appointment.TreatmentSchedule,
+                                    Medications = appointment.Medications,
+                                    Contact = appointment.Contact, 
                                     DoctorID = appointment.DoctorID,
-                                    DoctorName = appointment.DoctorName,
+                                    DoctorName = doctor.FullName,
+
+                                    // User details from users table
+                                    UserDetails = new
+                                    {
+                                        UserId = user.Id,
+                                        Username = user.Username,
+                                        Email = user.Email, 
+                                        
+                                    },
 
                                     // Doctor details from doctors table
                                     DoctorDetails = new
                                     {
                                         DoctorID = doctor.DoctorId,
-                                        FullName = doctor.FullName,
-                                        Email = doctor.Email,
-                                        PhoneNumber = doctor.PhoneNumber,
-                                        Specialty = doctor.Specialty,
-                                        LicenseNumber = doctor.LicenseNumber,
+                                        FullName = doctor.FullName, 
+                                        Email = doctor.EncryptedEmail,
+                                        PhoneNumber = doctor.EncryptedPhoneNumber,
+                                        Specialty = doctor.EncryptedSpecialty,
+                                        LicenseNumber = doctor.EncryptedLicenseNumber, 
                                         ExperienceYears = doctor.ExperienceYears
                                     },
                                     AesKey = appointment.AesKey,
@@ -487,10 +477,11 @@ public class AuthController : ControllerBase
             // Decrypt sensitive data for each appointment
             var decryptedAppointments = appointments.Select(appointment =>
             {
-                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  // Retrieve AES key
-                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    // Retrieve AES IV
+                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  
+                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    
 
-                return new
+                // Decrypt appointment data using AES
+                var decryptedAppointment = new
                 {
                     Id = appointment.Id,
                     Name = DecryptData(appointment.Name, aesKey, aesIV),
@@ -503,9 +494,28 @@ public class AuthController : ControllerBase
                     DoctorID = appointment.DoctorID,
                     DoctorName = appointment.DoctorName,
 
-                    // Doctor details from doctors table
-                    DoctorDetails = appointment.DoctorDetails
+                    // User details
+                    UserDetails = new
+                    {
+                        UserId = appointment.UserDetails.UserId,
+                        Username = appointment.UserDetails.Username,
+                        Email = appointment.UserDetails.Email, 
+                    },
+
+                    // Decrypt sensitive doctor details using RSA
+                    DoctorDetails = new
+                    {
+                        DoctorID = appointment.DoctorDetails.DoctorID,
+                        FullName = appointment.DoctorDetails.FullName,
+                        Email = RsaHelper.Decrypt(appointment.DoctorDetails.Email), 
+                        PhoneNumber = RsaHelper.Decrypt(appointment.DoctorDetails.PhoneNumber), 
+                        Specialty = RsaHelper.Decrypt(appointment.DoctorDetails.Specialty),
+                        LicenseNumber = RsaHelper.Decrypt(appointment.DoctorDetails.LicenseNumber),
+                        ExperienceYears = appointment.DoctorDetails.ExperienceYears
+                    }
                 };
+
+                return decryptedAppointment;
             }).ToList();
 
             return Ok(new
@@ -526,38 +536,50 @@ public class AuthController : ControllerBase
         }
     }
 
+
     [HttpGet("get-appointments/bydoctor/{doctorId}")]
     public IActionResult GetAppointmentsByDoctor(int doctorId)
     {
         try
         {
-            // Join appointments with users where DoctorID matches
+            // Join appointments with users and doctors where DoctorID matches
             var appointments = (from appointment in _context.Appointments
+                                join user in _context.Users
+                                on appointment.userID equals user.Id
                                 join doctor in _context.Doctors
                                 on appointment.DoctorID equals doctor.DoctorId
                                 where appointment.DoctorID == doctorId
                                 select new
                                 {
                                     Id = appointment.Id,
-                                    Name = appointment.Name, // Encrypted, needs decryption
+                                    Name = appointment.Name,
                                     Age = appointment.Age,
                                     UserID = appointment.userID,
-                                    MedicalHistory = appointment.MedicalHistory, // Encrypted, needs decryption
-                                    TreatmentSchedule = appointment.TreatmentSchedule, // Encrypted, needs decryption
-                                    Medications = appointment.Medications, // Encrypted, needs decryption
-                                    Contact = appointment.Contact, // Encrypted, needs decryption
+                                    MedicalHistory = appointment.MedicalHistory, 
+                                    TreatmentSchedule = appointment.TreatmentSchedule,
+                                    Medications = appointment.Medications, 
+                                    Contact = appointment.Contact,
                                     DoctorID = appointment.DoctorID,
-                                    DoctorName = doctor.FullName, // Get doctor's name
+                                    DoctorName = doctor.FullName, 
+
+                                    // User details from users table
+                                    UserDetails = new
+                                    {
+                                        UserId = user.Id,
+                                        Username = user.Username,
+                                        Email = user.Email, 
+                                       
+                                    },
 
                                     // Doctor details from doctors table
                                     DoctorDetails = new
                                     {
                                         DoctorID = doctor.DoctorId,
-                                        FullName = doctor.FullName,
-                                        Email = doctor.Email,
-                                        PhoneNumber = doctor.PhoneNumber,
-                                        Specialty = doctor.Specialty,
-                                        LicenseNumber = doctor.LicenseNumber,
+                                        FullName = doctor.FullName, 
+                                        Email = doctor.EncryptedEmail, 
+                                        PhoneNumber = doctor.EncryptedPhoneNumber, 
+                                        Specialty = doctor.EncryptedSpecialty, 
+                                        LicenseNumber = doctor.EncryptedLicenseNumber,
                                         ExperienceYears = doctor.ExperienceYears
                                     },
                                     AesKey = appointment.AesKey,
@@ -576,10 +598,11 @@ public class AuthController : ControllerBase
             // Decrypt sensitive data for each appointment
             var decryptedAppointments = appointments.Select(appointment =>
             {
-                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  // Retrieve AES key
-                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    // Retrieve AES IV
+                byte[] aesKey = Convert.FromBase64String(appointment.AesKey);  
+                byte[] aesIV = Convert.FromBase64String(appointment.AesIV);    
 
-                return new
+                // Decrypt appointment data using AES
+                var decryptedAppointment = new
                 {
                     Id = appointment.Id,
                     Name = DecryptData(appointment.Name, aesKey, aesIV),
@@ -590,11 +613,31 @@ public class AuthController : ControllerBase
                     Medications = DecryptData(appointment.Medications, aesKey, aesIV),
                     Contact = DecryptData(appointment.Contact, aesKey, aesIV),
                     DoctorID = appointment.DoctorID,
-                    DoctorName = appointment.DoctorName,
+                    DoctorName = appointment.DoctorName, // No need for decryption
 
-                    // Doctor details from doctors table
-                    DoctorDetails = appointment.DoctorDetails
+                    // User details
+                    UserDetails = new
+                    {
+                        UserId = appointment.UserDetails.UserId,
+                        Username = appointment.UserDetails.Username,
+                        Email = appointment.UserDetails.Email, // Decrypt if needed
+                      
+                    },
+
+                    // Decrypt sensitive doctor details using RSA
+                    DoctorDetails = new
+                    {
+                        DoctorID = appointment.DoctorDetails.DoctorID,
+                        FullName = appointment.DoctorDetails.FullName, 
+                        Email = RsaHelper.Decrypt(appointment.DoctorDetails.Email), 
+                        PhoneNumber = RsaHelper.Decrypt(appointment.DoctorDetails.PhoneNumber),
+                        Specialty = RsaHelper.Decrypt(appointment.DoctorDetails.Specialty),
+                        LicenseNumber = RsaHelper.Decrypt(appointment.DoctorDetails.LicenseNumber),
+                        ExperienceYears = appointment.DoctorDetails.ExperienceYears
+                    }
                 };
+
+                return decryptedAppointment;
             }).ToList();
 
             return Ok(new
@@ -614,6 +657,60 @@ public class AuthController : ControllerBase
             });
         }
     }
+
+
+    [Authorize]
+    [HttpGet("get-appointments/users-bydoctor/{doctorId}")]
+    public IActionResult GetUsersWithAppointmentsByDoctor(int doctorId)
+    {
+        try
+        {
+            // Join appointments with users where DoctorID matches and group by user to avoid duplicates
+            var usersWithAppointments = (from appointment in _context.Appointments
+                                         join user in _context.Users
+                                         on appointment.userID equals user.Id
+                                         where appointment.DoctorID == doctorId
+                                         group user by new
+                                         {
+                                             user.Id,
+                                             user.Username,
+                                             user.Email
+                                         } into userGroup
+                                         select new
+                                         {
+                                             UserId = userGroup.Key.Id,
+                                             Username = userGroup.Key.Username,
+                                             Email = userGroup.Key.Email 
+                                                                        
+                                         }).ToList();
+
+            if (!usersWithAppointments.Any())
+            {
+                return NotFound(new
+                {
+                    message = "No users with appointments found for the specified DoctorID.",
+                    statusCode = 404
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Users with appointments retrieved successfully.",
+                statusCode = 200,
+                data = usersWithAppointments
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "An error occurred while retrieving the users with appointments.",
+                statusCode = 500,
+                error = ex.Message
+            });
+        }
+    }
+
 
 
 }

@@ -27,7 +27,7 @@ const DoctorDashboard = () => {
 
   // Fetch doctor details from API using doctorId from localStorage
   useEffect(() => {
-    const storedDoctorId = localStorage.getItem('doctorId');
+    const storedDoctorId = localStorage.getItem('userId');
     if (storedDoctorId) {
       axios
         .get(`${API_BASE_URL}/doctor/${storedDoctorId}`)
@@ -44,6 +44,7 @@ const DoctorDashboard = () => {
   useEffect(() => {
     // Get the token from localStorage
     const token = localStorage.getItem('token');
+    const storedDoctorId = localStorage.getItem('userId');
 
     // If no token is found, handle the error (you may want to redirect to login or show an error message)
     if (!token) {
@@ -52,7 +53,8 @@ const DoctorDashboard = () => {
     }
 
     // Make the request with the Authorization header
-    axios.get(`${API_BASE_URL}/auth/get-users`, {
+    // axios.get(`${API_BASE_URL}/auth/get-users`, {
+      axios.get(`${API_BASE_URL}/auth/get-appointments/users-bydoctor/${storedDoctorId}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
       },
@@ -111,7 +113,7 @@ const DoctorDashboard = () => {
 
   // Fetch Appointments by Doctor ID when Manage Appointments is clicked
   const handleManageAppointmentsClick = () => {
-    const storedDoctorId = localStorage.getItem('doctorId');
+    const storedDoctorId = localStorage.getItem('userId');
 
     axios.get(`${API_BASE_URL}/auth/get-appointments/bydoctor/${storedDoctorId}`)
       .then(response => {
@@ -193,17 +195,17 @@ const DoctorDashboard = () => {
           Quick Actions
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
+          {/* <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{ textAlign: 'center', padding: 2, borderRadius: 3, backgroundColor: '#1976d2', color: 'white' }}
             >
               <AccountCircleIcon sx={{ fontSize: 40 }} />
               <Typography>View Profile</Typography>
             </Card>
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} sm={6} md={4}>
             <Card
-              sx={{ textAlign: 'center', padding: 2, borderRadius: 3, backgroundColor: '#43a047', color: 'white', cursor: 'pointer' }}
+              sx={{ textAlign: 'center', padding: 2, borderRadius: 3, backgroundColor: '#f57c00', color: 'white', cursor: 'pointer' }}
               onClick={handleManageAppointmentsClick} // Add this click handler
             >
               <WorkIcon sx={{ fontSize: 40 }} />
@@ -211,14 +213,14 @@ const DoctorDashboard = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          {/* <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{ textAlign: 'center', padding: 2, borderRadius: 3, backgroundColor: '#f57c00', color: 'white' }}
             >
               <ExperienceIcon sx={{ fontSize: 40 }} />
               <Typography>View Experience</Typography>
             </Card>
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{ textAlign: 'center', padding: 2, borderRadius: 3, backgroundColor: '#4caf50', color: 'white', cursor: 'pointer' }}
@@ -260,15 +262,15 @@ const DoctorDashboard = () => {
               </TableHead>
               <TableBody>
                 {filteredPatients.map((patient) => (
-                  <TableRow key={patient.id}>
-                    <TableCell>{patient.id}</TableCell>
+                  <TableRow key={patient.userId}>
+                    <TableCell>{patient.userId}</TableCell>
                     <TableCell>{patient.username}</TableCell>
                     <TableCell>{patient.email}</TableCell>
                     <TableCell>
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => fetchAppointments(patient.id)}
+                        onClick={() => fetchAppointments(patient.userId)}
                       >
                         View
                       </Button>
@@ -343,6 +345,12 @@ const DoctorDashboard = () => {
                 >
                   <Typography variant="h6" gutterBottom sx={{ color: '#333' }}>
                     {appointment.name}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Patient Name:</strong> {appointment.userDetails.username}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Patient Email:</strong> {appointment.userDetails.email}
                   </Typography>
                   <Typography variant="body2" gutterBottom>
                     <strong>Age:</strong> {appointment.age}

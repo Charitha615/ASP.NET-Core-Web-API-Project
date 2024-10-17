@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { TextField, Button, Box, Typography, Container, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import { API_BASE_URL } from '../config'; // Import global API URL
 import Swal from 'sweetalert'; // Import SweetAlert
+import { saveAuthData, setupAutoLogout } from '../utils/auth';
 
 const Login = () => {
   const [userType, setUserType] = useState('normal'); // State for selecting user type (normal or doctor)
@@ -12,67 +13,70 @@ const Login = () => {
   const [licenseNumber, setLicenseNumber] = useState(''); // For doctor login
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    localStorage.clear();
-    e.preventDefault();
 
-    try {
-      let response;
-      let data;
-      
-      if (userType === 'normal') {
-        // Normal user login
-        response = await fetch(`${API_BASE_URL}/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username,
-            password,
-          }),
-        });
-        data = await response.json();
 
-        if (response.ok) {
-          // Store userId in localStorage
-          localStorage.setItem('userId', data.userId);
-          localStorage.setItem('token', data.token);
-          console.log(data);
-          Swal('Success', 'Login successful', 'success');
-          navigate('/home'); // Redirect to home for normal users
-        } else {
-          Swal('Error', data.message || 'Login failed', 'error');
-        }
-      } else if (userType === 'doctor') {
-        // Doctor login
-        response = await fetch(`https://localhost:5001/api/doctor/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            Email: email,
-            LicenseNumber: licenseNumber,
-          }),
-        });
-        data = await response.json();
+const handleLogin = async (e) => {
+  localStorage.clear();
+  e.preventDefault();
 
-        if (response.ok) {
-          // Store doctorId in localStorage
-          localStorage.setItem('doctorId', data.doctorDetails.id);
-          localStorage.setItem('token', data.token);
-          console.log(data);
-          Swal('Success', 'Login successful', 'success');
-          navigate('/doctorDashboard'); // Redirect to doctor dashboard for doctors
-        } else {
-          Swal('Error', data.message || 'Login failed', 'error');
-        }
+  try {
+    let response;
+    let data;
+
+    if (userType === 'normal') {
+      // Normal user login
+      response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+      data = await response.json();
+
+      if (response.ok) {
+        // Use the auth.js utility to save token and userId
+        saveAuthData(data.token, data.userId);
+        console.log(data);
+        Swal('Success', 'Login successful', 'success');
+        setupAutoLogout(); // Set up auto-logout based on token expiration
+        navigate('/home'); // Redirect to home for normal users
+      } else {
+        Swal('Error', data.message || 'Login failed', 'error');
       }
-    } catch (error) {
-      Swal('Error', 'Something went wrong', 'error');
+    } else if (userType === 'doctor') {
+      // Doctor login
+      response = await fetch(`https://localhost:5001/api/doctor/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Email: email,
+          LicenseNumber: licenseNumber,
+        }),
+      });
+      data = await response.json();
+
+      if (response.ok) {
+        // Use the auth.js utility to save token and doctorId
+        saveAuthData(data.token, data.doctorDetails.id);
+        console.log(data);
+        Swal('Success', 'Login successful', 'success');
+        setupAutoLogout(); // Set up auto-logout based on token expiration
+        navigate('/doctorDashboard'); // Redirect to doctor dashboard for doctors
+      } else {
+        Swal('Error', data.message || 'Login failed', 'error');
+      }
     }
-  };
+  } catch (error) {
+    Swal('Error', 'Something went wrong', 'error');
+  }
+};
+
 
   return (
     <Container component="main" maxWidth="xs">

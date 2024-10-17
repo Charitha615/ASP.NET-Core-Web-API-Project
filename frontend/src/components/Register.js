@@ -11,11 +11,22 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
+  // Function to validate strong password
+  const isValidPassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
       Swal('Error', 'Passwords do not match', 'error');
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      Swal('Error', 'Password must be at least 8 characters long, contain uppercase, lowercase, a number, and a special character', 'error');
       return;
     }
 
