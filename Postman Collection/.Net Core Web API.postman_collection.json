@@ -154,8 +154,8 @@
 				"method": "POST",
 				"header": [],
 				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"stringss\",\r\n    \"email\": \"string@example.com\",\r\n    \"password\": \"string\"\r\n}",
+					"mode": "urlencoded",
+					"urlencoded": [],
 					"options": {
 						"raw": {
 							"language": "json"
@@ -329,7 +329,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://0.0.0.0:5001/api/Auth/get-appointments/bydoctor/2",
+					"raw": "https://0.0.0.0:5001/api/Auth/get-appointments/bydoctor/1",
 					"protocol": "https",
 					"host": [
 						"0",
@@ -343,7 +343,7 @@
 						"Auth",
 						"get-appointments",
 						"bydoctor",
-						"2"
+						"1"
 					]
 				}
 			},
@@ -357,7 +357,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiI8c2NyaXB0PmFsZXJ0KCdYU1MnKTwvc2NyaXB0PiIsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJsaWNlbnNlTnVtYmVyIjoiTElDMTIzNDUiLCJuYmYiOjE3Mjg0OTg5NjAsImV4cCI6MTcyOTEwMzc2MCwiaWF0IjoxNzI4NDk4OTYwfQ.f4SJ09gOage6t670y5IBAYPpboCdwUIUwQ7gWsEU_ro",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiJEci4gSm9obiBEb2UiLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwibGljZW5zZU51bWJlciI6IkxJQzEyMzQ1IiwibmJmIjoxNzI5MTkwNjM0LCJleHAiOjE3MjkxOTA2OTQsImlhdCI6MTcyOTE5MDYzNH0.DTTzimR-CJOHYKHuH-QWbQ4nqlupGT2KB5u1CRYIDkQ",
 							"type": "string"
 						}
 					]
@@ -378,6 +378,42 @@
 						"api",
 						"auth",
 						"get-users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All User By Doctor ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiJEci4gSm9obiBEb2UiLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwibGljZW5zZU51bWJlciI6IkxJQzEyMzQ1IiwibmJmIjoxNzI5MTkwNjM0LCJleHAiOjE3MjkxOTA2OTQsImlhdCI6MTcyOTE5MDYzNH0.DTTzimR-CJOHYKHuH-QWbQ4nqlupGT2KB5u1CRYIDkQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://0.0.0.0:5001/api/auth/get-appointments/users-bydoctor/1",
+					"protocol": "https",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"auth",
+						"get-appointments",
+						"users-bydoctor",
+						"1"
 					]
 				}
 			},
