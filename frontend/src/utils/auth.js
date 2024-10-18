@@ -1,7 +1,7 @@
 import { jwtDecode } from 'jwt-decode';
 
 const TOKEN_KEY = 'token';
-const USER_ID_KEY = 'userId'; // Can be changed to 'doctorId' based on the type of user
+const USER_ID_KEY = 'userId';
 
 // Save token and user-related information in localStorage
 export function saveAuthData(token, userId) {

@@ -149,6 +149,30 @@ namespace MyAuthApi.Controllers
 
 
 
+        //[HttpGet("{id}")]
+        //public IActionResult GetDoctorById(int id)
+        //{
+        //    var doctor = _context.Doctors.FirstOrDefault(d => d.DoctorId == id);
+
+        //    if (doctor == null)
+        //    {
+        //        return NotFound(new { message = "Doctor not found!" });
+        //    }
+
+        //    var safeDoctor = new
+        //    {
+        //        id = doctor.DoctorId,
+        //        fullName = doctor.FullName, // No encryption for FullName
+        //        email = RsaHelper.Decrypt(doctor.EncryptedEmail),
+        //        phoneNumber = RsaHelper.Decrypt(doctor.EncryptedPhoneNumber),
+        //        specialty = RsaHelper.Decrypt(doctor.EncryptedSpecialty),
+        //        licenseNumber = RsaHelper.Decrypt(doctor.EncryptedLicenseNumber),
+        //        experienceYears = doctor.ExperienceYears
+        //    };
+
+        //    return Ok(safeDoctor);
+        //}
+
         [HttpGet("{id}")]
         public IActionResult GetDoctorById(int id)
         {
@@ -162,16 +186,17 @@ namespace MyAuthApi.Controllers
             var safeDoctor = new
             {
                 id = doctor.DoctorId,
-                fullName = doctor.FullName, // No encryption for FullName
-                email = RsaHelper.Decrypt(doctor.EncryptedEmail),
-                phoneNumber = RsaHelper.Decrypt(doctor.EncryptedPhoneNumber),
-                specialty = RsaHelper.Decrypt(doctor.EncryptedSpecialty),
-                licenseNumber = RsaHelper.Decrypt(doctor.EncryptedLicenseNumber),
-                experienceYears = doctor.ExperienceYears
+                fullName = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(doctor.FullName), // HTML encoding for FullName
+                email = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(RsaHelper.Decrypt(doctor.EncryptedEmail)),
+                phoneNumber = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(RsaHelper.Decrypt(doctor.EncryptedPhoneNumber)),
+                specialty = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(RsaHelper.Decrypt(doctor.EncryptedSpecialty)),
+                licenseNumber = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(RsaHelper.Decrypt(doctor.EncryptedLicenseNumber)),
+                experienceYears = doctor.ExperienceYears // No encryption or encoding for ExperienceYears
             };
 
             return Ok(safeDoctor);
         }
+
 
     }
 }
