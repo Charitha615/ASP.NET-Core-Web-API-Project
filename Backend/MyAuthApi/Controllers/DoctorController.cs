@@ -53,38 +53,72 @@ namespace MyAuthApi.Controllers
                 var doctor = _context.Doctors
                     .FirstOrDefault(d => d.EncryptedEmail != null && d.EncryptedLicenseNumber != null);
 
-                if (doctor != null)
-                {
-                  
-                    var decryptedEmail = RsaHelper.Decrypt(doctor.EncryptedEmail);
-                    var decryptedLicenseNumber = RsaHelper.Decrypt(doctor.EncryptedLicenseNumber);
 
-                    // Compare decrypted values with the login credentials
+                var doctors = _context.Doctors.ToList();
+
+                foreach (var doc in doctors)
+                {
+                    var decryptedEmail = RsaHelper.Decrypt(doc.EncryptedEmail);
+                    var decryptedLicenseNumber = RsaHelper.Decrypt(doc.EncryptedLicenseNumber);
+
                     if (decryptedEmail == loginDto.Email && decryptedLicenseNumber == loginDto.LicenseNumber)
                     {
-                        // Generate JWT token for the doctor
-                        var token = GenerateJwtToken(doctor);
+                        // Generate the JWT token and return the response as you do now
+                        var token = GenerateJwtToken(doc);
 
-                        // Return doctor details along with the token
                         return Ok(new
                         {
                             message = "Login successful!",
                             token = token,
                             doctorDetails = new
                             {
-                                id = doctor.DoctorId,
-                                fullName = doctor.FullName,
+                                id = doc.DoctorId,
+                                fullName = doc.FullName,
                                 email = decryptedEmail,
-                                phoneNumber = RsaHelper.Decrypt(doctor.EncryptedPhoneNumber),
-                                specialty = RsaHelper.Decrypt(doctor.EncryptedSpecialty),
+                                phoneNumber = RsaHelper.Decrypt(doc.EncryptedPhoneNumber),
+                                specialty = RsaHelper.Decrypt(doc.EncryptedSpecialty),
                                 licenseNumber = decryptedLicenseNumber,
-                                experienceYears = doctor.ExperienceYears
+                                experienceYears = doc.ExperienceYears
                             }
                         });
                     }
                 }
 
                 return Unauthorized(new { message = "Invalid email or license number!" });
+
+
+                //if (doctor != null)
+                //{
+
+                //    var decryptedEmail = RsaHelper.Decrypt(doctor.EncryptedEmail);
+                //    var decryptedLicenseNumber = RsaHelper.Decrypt(doctor.EncryptedLicenseNumber);
+
+                //    // Compare decrypted values with the login credentials
+                //    if (decryptedEmail == loginDto.Email && decryptedLicenseNumber == loginDto.LicenseNumber)
+                //    {
+                //        // Generate JWT token for the doctor
+                //        var token = GenerateJwtToken(doctor);
+
+                //        // Return doctor details along with the token
+                //        return Ok(new
+                //        {
+                //            message = "Login successful!",
+                //            token = token,
+                //            doctorDetails = new
+                //            {
+                //                id = doctor.DoctorId,
+                //                fullName = doctor.FullName,
+                //                email = decryptedEmail,
+                //                phoneNumber = RsaHelper.Decrypt(doctor.EncryptedPhoneNumber),
+                //                specialty = RsaHelper.Decrypt(doctor.EncryptedSpecialty),
+                //                licenseNumber = decryptedLicenseNumber,
+                //                experienceYears = doctor.ExperienceYears
+                //            }
+                //        });
+                //    }
+                //}
+
+                //return Unauthorized(new { message = "Invalid email or license number!" });
             }
 
             return BadRequest(ModelState);
