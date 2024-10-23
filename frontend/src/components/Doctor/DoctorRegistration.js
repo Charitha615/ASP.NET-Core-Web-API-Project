@@ -39,7 +39,7 @@ const DoctorRegistration = () => {
         specialty: formData.specialty,
         licenseNumber: formData.licenseNumber,
         experienceYears: formData.experience,
-        password: formData.password, // Assuming backend uses this or for extending auth functionality
+        // password: formData.password, // Assuming backend uses this or for extending auth functionality
       });
 
       console.log(response.data);
@@ -137,29 +137,29 @@ const DoctorRegistration = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+            {/* <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                required
+              />
+            </div> */}
 
           <button type="submit" className="submit-btn">
             Register
